@@ -1,0 +1,25 @@
+// firestore.rules
+// Deploy with: firebase deploy --only firestore:rules
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users collection - read allowed for login matching
+    match /users/{userId} {
+      allow read: if true;  // needed for login query
+      allow write: if false; // only via Admin SDK / seed script
+    }
+
+    // Submissions - students read own, teachers write
+    match /submissions/{submissionId} {
+      allow read: if true;
+      allow write: if true; // tighten after testing with auth
+    }
+  }
+}
+
+// NOTE: For production, tighten rules:
+// - Use Firebase Auth so you can validate request.auth.uid
+// - Students: allow read only if student_id == request.auth.uid
+// - Teachers: allow write only based on their subject claim
